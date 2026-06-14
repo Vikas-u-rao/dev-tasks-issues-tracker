@@ -1,4 +1,4 @@
-# Enterprise Software Issue & Task Tracker
+# Developer Software Issue & Task Tracker
 
 A collaborative, database-first mini-project building a secure, role-based Issue Tracking System. 
 
