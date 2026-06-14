@@ -1,4 +1,4 @@
-# 📘 Enterprise Issue & Task Tracker — Step-by-Step Implementation Manual
+# 📘 Developer Issue & Task Tracker — Step-by-Step Implementation Manual
 
 This document is the master step-by-step implementation guide for building the **Enterprise Software Issue & Task Tracker** using Flask + raw PostgreSQL (`psycopg2`, no ORM) + Bootstrap 5. It contains full descriptions and code structures for every file so you and your Vijay can build and understand it.
 
