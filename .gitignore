@@ -1,0 +1,26 @@
+# Environment variables
+.env
+
+# Backups
+app/routes/*.bak
+
+# Local checklist / learning guides
+implementation_plan.md
+task.md
+walkthrough.md
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# IDE / Editor configuration
+.vscode/
+.idea/
+*.swp
+*.swo
