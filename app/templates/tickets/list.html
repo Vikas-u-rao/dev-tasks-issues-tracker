@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Tickets - DEVTRACKER{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h2 class="mb-1">Tickets List</h2>
+        <p class="text-secondary">Browse, filter, and manage your issues and tasks.</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('tickets.create') }}" class="btn btn-primary">Create Ticket</a>
+    </div>
+</div>
+
+<!-- Filters Bar -->
+<div class="glass-card p-3 mb-4">
+    <form method="GET" action="{{ url_for('tickets.index') }}" class="row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="search" class="form-label text-secondary small fw-medium">Search</label>
+            <input type="text" class="form-control form-control-sm" id="search" name="search" value="{{ search }}" placeholder="Title or description...">
+        </div>
+        
+        <div class="col-md-3">
+            <label for="status" class="form-label text-secondary small fw-medium">Status</label>
+            <select class="form-select form-select-sm" id="status" name="status">
+                <option value="">All Statuses</option>
+                <option value="open" {% if status_filter == 'open' %}selected{% endif %}>Open</option>
+                <option value="in_progress" {% if status_filter == 'in_progress' %}selected{% endif %}>In Progress</option>
+                <option value="in_review" {% if status_filter == 'in_review' %}selected{% endif %}>In Review</option>
+                <option value="resolved" {% if status_filter == 'resolved' %}selected{% endif %}>Resolved</option>
+                <option value="closed" {% if status_filter == 'closed' %}selected{% endif %}>Closed</option>
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="priority" class="form-label text-secondary small fw-medium">Priority</label>
+            <select class="form-select form-select-sm" id="priority" name="priority">
+                <option value="">All Priorities</option>
+                <option value="low" {% if priority_filter == 'low' %}selected{% endif %}>Low</option>
+                <option value="medium" {% if priority_filter == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="high" {% if priority_filter == 'high' %}selected{% endif %}>High</option>
+                <option value="critical" {% if priority_filter == 'critical' %}selected{% endif %}>Critical</option>
+            </select>
+        </div>
+        
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-sm btn-primary py-2">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="glass-card">
+    <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0 align-middle">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border-color);">
+                    <th>ID</th>
+                    <th>Ticket Title</th>
+                    <th>Type</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assignee</th>
+                    <th>Due Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer;" onclick="window.location='{{ url_for('tickets.detail', ticket_id=ticket.id) }}'">
+                        <td><span class="text-secondary">#{{ ticket.id }}</span></td>
+                        <td>
+                            <a href="{{ url_for('tickets.detail', ticket_id=ticket.id) }}" class="text-light text-decoration-none fw-semibold">
+                                {{ ticket.title }}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill bg-dark border border-secondary text-uppercase text-light small" style="font-size: 0.75rem;">
+                                {{ ticket.type }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill text-uppercase text-light small {% if ticket.priority == 'critical' %}bg-danger{% elif ticket.priority == 'high' %}bg-warning text-dark{% elif ticket.priority == 'medium' %}bg-primary{% else %}bg-secondary{% endif %}" style="font-size: 0.75rem;">
+                                {{ ticket.priority }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill text-uppercase small {% if ticket.status == 'open' %}bg-info text-dark{% elif ticket.status == 'in_progress' %}bg-primary{% elif ticket.status == 'in_review' %}bg-warning text-dark{% elif ticket.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}" style="font-size: 0.75rem;">
+                                {{ ticket.status | replace('_', ' ') }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if ticket.assignee_name %}
+                                <strong class="small text-light">{{ ticket.assignee_name }}</strong>
+                            {% else %}
+                                <em class="small text-secondary">Unassigned</em>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if ticket.due_date %}
+                                <span class="small text-secondary">{{ ticket.due_date.strftime('%Y-%m-%d') }}</span>
+                            {% else %}
+                                <span class="small text-secondary">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-secondary py-5">
+                            No tickets matched your query.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

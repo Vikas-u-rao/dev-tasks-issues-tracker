@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Ticket #{{ ticket.id }} - DEVTRACKER{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <a href="{{ url_for('tickets.index') }}" class="btn btn-sm btn-outline-secondary mb-3">&larr; Back to Tickets</a>
+        <div class="d-flex align-items-center gap-3">
+            <h2 class="mb-0">{{ ticket.title }}</h2>
+            <span class="badge bg-secondary-subtle text-light text-uppercase">#{{ ticket.id }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Main Ticket Content -->
+    <div class="col-lg-8">
+        <!-- 1. Ticket Details Card -->
+        <div class="glass-card mb-4">
+            <h5 class="text-secondary border-bottom border-secondary border-opacity-25 pb-2 mb-3">Description</h5>
+            <p style="white-space: pre-wrap;">{{ ticket.description or 'No description provided.' }}</p>
+            
+            <div class="row mt-4 pt-3 border-top border-secondary border-opacity-10 text-secondary small">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Created At:</strong> {{ ticket.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    <p class="mb-0"><strong>Last Updated:</strong> {{ ticket.updated_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0"><strong>Reporter:</strong> {{ ticket.reporter_name or 'System' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Comments Section (Vijay's Task) -->
+        <div class="glass-card mb-4">
+            <h4 class="mb-4">Comments</h4>
+            
+            <!-- Loop through comments -->
+            <div class="comments-list mb-4">
+                {% for comment in comments %}
+                    <div class="card bg-dark border-secondary border-opacity-25 mb-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <strong style="color: var(--primary-accent);">{{ comment.username }}</strong>
+                                <small class="text-secondary">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </div>
+                            <p class="mb-0 card-text">{{ comment.comment }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-secondary py-3 text-center">No comments on this ticket yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- TODO: Add Comment Form (Vijay's Task) -->
+            <!-- Hint: Form should POST to /tickets/<ticket_id>/comments -->
+            <div class="border-top border-secondary border-opacity-25 pt-4">
+                <h5>Add a Comment</h5>
+                <p class="text-secondary small">Vijay: Implement the comments form here (POST to route `/tickets/{{ ticket.id }}/comments` which you will write in app/routes/comments.py).</p>
+            </div>
+        </div>
+
+        <!-- 4. Audit Log / Activity History (Vijay's Task) -->
+        <div class="glass-card">
+            <h4 class="mb-4">Activity Log</h4>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% for log in audit_log %}
+                    <li class="list-group-item bg-transparent text-light border-secondary border-opacity-10 py-3 px-0">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ log.changed_by_name or 'System' }}</strong>
+                            <small class="text-secondary">{{ log.changed_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-0 text-secondary mt-1">
+                            Action: <code class="text-indigo">{{ log.action }}</code>. 
+                            Changed status from <span class="badge bg-secondary">{{ log.old_value }}</span> to <span class="badge bg-primary">{{ log.new_value }}</span>
+                        </p>
+                    </li>
+                {% else %}
+                    <li class="list-group-item bg-transparent text-secondary py-3 text-center border-0">No history logged yet.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Sidebar Actions / Details -->
+    <div class="col-lg-4">
+        <!-- Metadata -->
+        <div class="glass-card mb-4">
+            <h4 class="mb-4">Ticket Details</h4>
+            
+            <div class="mb-3">
+                <label class="text-secondary small fw-medium d-block mb-1">Status</label>
+                <span class="badge text-uppercase py-2 px-3 fs-6 {% if ticket.status == 'open' %}bg-info text-dark{% elif ticket.status == 'in_progress' %}bg-primary{% elif ticket.status == 'in_review' %}bg-warning text-dark{% elif ticket.status == 'resolved' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ ticket.status | replace('_', ' ') }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-secondary small fw-medium d-block mb-1">Priority</label>
+                <span class="badge text-uppercase py-2 px-3 fs-6 {% if ticket.priority == 'critical' %}bg-danger{% elif ticket.priority == 'high' %}bg-warning text-dark{% elif ticket.priority == 'medium' %}bg-primary{% else %}bg-secondary{% endif %}">
+                    {{ ticket.priority }}
+                </span>
+            </div>
+
+            <div class="mb-3">
+                <label class="text-secondary small fw-medium d-block mb-1">Type</label>
+                <span class="badge bg-dark border border-secondary text-uppercase py-2 px-3 fs-6 text-light">
+                    {{ ticket.type }}
+                </span>
+            </div>
+
+            <div class="mb-4">
+                <label class="text-secondary small fw-medium d-block mb-1">Due Date</label>
+                <span class="text-light fw-medium">{{ ticket.due_date.strftime('%Y-%m-%d') if ticket.due_date else 'No due date set' }}</span>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-secondary small fw-medium d-block mb-1">Assignee</label>
+                {% if ticket.assignee_name %}
+                    <span class="text-light fw-semibold">{{ ticket.assignee_name }}</span>
+                {% else %}
+                    <span class="text-secondary font-italic">Unassigned</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 2. Action Controls (RBAC-aware) -->
+        <div class="glass-card">
+            <h4 class="mb-4">Actions</h4>
+            
+            <!-- Assignee Form (Manager / Developer self-assign) -->
+            <form action="{{ url_for('tickets.assign', ticket_id=ticket.id) }}" method="POST" class="mb-3">
+                <label for="assignee_id" class="form-label text-secondary small">Assign To</label>
+                <div class="input-group">
+                    <select class="form-select" id="assignee_id" name="assignee_id" {% if current_user.role == 'reporter' %}disabled{% endif %}>
+                        <option value="">-- Unassigned --</option>
+                        {% for u in users %}
+                            {% if current_user.role == 'manager' or (current_user.role == 'developer' and u.id == current_user.id) %}
+                                <option value="{{ u.id }}" {% if ticket.assignee_id == u.id %}selected{% endif %}>
+                                    {{ u.username }} ({{ u.role }})
+                                </option>
+                            {% elif ticket.assignee_id == u.id %}
+                                <option value="{{ u.id }}" selected>{{ u.username }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                    {% if current_user.role != 'reporter' %}
+                        <button type="submit" class="btn btn-outline-primary">Save</button>
+                    {% endif %}
+                </div>
+            </form>
+
+            <!-- Status Form -->
+            <form action="{{ url_for('tickets.update_status', ticket_id=ticket.id) }}" method="POST" class="mb-4">
+                <label for="status" class="form-label text-secondary small">Change Status</label>
+                <div class="input-group">
+                    <select class="form-select" id="status" name="status">
+                        <!-- Options follow transitions -->
+                        <option value="open" {% if ticket.status == 'open' %}selected{% endif %}>Open</option>
+                        <option value="in_progress" {% if ticket.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                        <option value="in_review" {% if ticket.status == 'in_review' %}selected{% endif %}>In Review</option>
+                        <option value="resolved" {% if ticket.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="closed" {% if ticket.status == 'closed' %}selected{% endif %} {% if current_user.role != 'manager' %}disabled{% endif %}>Closed</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline-primary">Update</button>
+                </div>
+            </form>
+
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('tickets.edit', ticket_id=ticket.id) }}" class="btn btn-outline-secondary">Edit Ticket Details</a>
+                {% if current_user.role == 'manager' %}
+                    <form action="{{ url_for('tickets.delete', ticket_id=ticket.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this ticket?');">
+                        <button type="submit" class="btn btn-outline-danger w-100">Delete Ticket</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
