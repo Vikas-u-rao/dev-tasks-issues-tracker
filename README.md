@@ -13,25 +13,6 @@ A collaborative, database-first mini-project building a secure, role-based Issue
 | **Frontend** | Jinja2 Templates + Bootstrap 5 + Vanilla CSS & JS |
 | **Auth** | Flask session cookies + `werkzeug.security` password hashing |
 
----
-
-## Work Split
-
-| Vikas — Database, Backend & Core Frontend (~80%) | Teammate — Templates & Light Backend (~20%) |
-| :--- | :--- |
-| Full SQL schema, constraints, indexes, triggers | `tickets/detail.html` — detail + comments + timeline |
-| State machine + Audit log database triggers | `tickets/form.html` — new/edit ticket form |
-| SQL Views (workload, overdue), Seed data | `profile.html` — user profile page |
-| Flask app factory, config, DB connection pool | Comment routes (POST / DELETE) |
-| Session-based auth (register/login/logout) | Profile page route |
-| All ticket CRUD routes with full RBAC | Additional CSS polish & responsive tweaks |
-| Dashboard KPI routes + Tag management | — |
-| `base.html`, `login.html`, `register.html` | — |
-| `dashboard.html`, `tickets/list.html` | — |
-| `style.css` core design system + `main.js` | — |
-
----
-
 ## Database Architecture & Relationships
 
 ```
