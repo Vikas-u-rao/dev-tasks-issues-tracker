@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - DEVTRACKER{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h2 class="text-center mb-4">Create an Account</h2>
+            <p class="text-secondary text-center mb-4">Join the issue tracker and start managing tasks.</p>
+            
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label text-secondary">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label text-secondary">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="password" class="form-label text-secondary">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="role" class="form-label text-secondary">Role</label>
+                    <select class="form-select" id="role" name="role">
+                        <option value="developer">Developer</option>
+                        <option value="manager">Manager</option>
+                        <option value="reporter">Reporter</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2.5">Register</button>
+            </form>
+            
+            <hr class="my-4 border-secondary opacity-25">
+            
+            <p class="text-center text-secondary mb-0">
+                Already have an account? <a href="{{ url_for('auth.login') }}" class="text-primary-accent text-decoration-none" style="color: var(--primary-accent);">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

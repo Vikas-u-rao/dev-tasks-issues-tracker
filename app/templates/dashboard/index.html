@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - DEVTRACKER{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="mb-1">Hello, {{ current_user.username }}</h2>
+        <p class="text-secondary">Here is an overview of the system's workload and active tickets.</p>
+    </div>
+    <div class="col-auto align-self-end">
+        <a href="{{ url_for('tickets.create') }}" class="btn btn-primary">Create Ticket</a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="glass-card text-center p-4 h-100">
+            <h6 class="text-secondary text-uppercase mb-2">Total Open</h6>
+            <h2 class="display-5 font-bold mb-0 text-indigo" style="color: #818cf8;">{{ total_open }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center p-4 h-100">
+            <h6 class="text-secondary text-uppercase mb-2">Critical Unresolved</h6>
+            <h2 class="display-5 font-bold mb-0 text-danger" style="color: #f87171;">{{ critical_unresolved }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center p-4 h-100">
+            <h6 class="text-secondary text-uppercase mb-2">Resolved This Week</h6>
+            <h2 class="display-5 font-bold mb-0 text-emerald" style="color: #34d399;">{{ resolved_this_week }}</h2>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-card text-center p-4 h-100">
+            <h6 class="text-secondary text-uppercase mb-2">Your Active Tickets</h6>
+            <h2 class="display-5 font-bold mb-0 text-info" style="color: #22d3ee;">{{ user_active }}</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Team Workload Summary -->
+    <div class="col-lg-6">
+        <div class="glass-card h-100">
+            <h4 class="mb-4">Team Workload Summary</h4>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0 align-middle">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color);">
+                            <th>Username</th>
+                            <th>Role</th>
+                            <th class="text-center">Active Tickets</th>
+                            <th class="text-center">Total Tickets</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in workload_summary %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <td><strong>{{ row.username }}</strong></td>
+                                <td>
+                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill">
+                                        {{ row.role | capitalize }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill {% if row.active_tickets > 3 %}bg-danger{% else %}bg-success{% endif %}">
+                                        {{ row.active_tickets }}
+                                    </span>
+                                </td>
+                                <td class="text-center">{{ row.total_tickets }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center text-secondary py-4">No workload data found.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overdue Tickets Alert -->
+    <div class="col-lg-6">
+        <div class="glass-card h-100">
+            <h4 class="mb-4 text-danger" style="color: #f87171;">Overdue Tickets</h4>
+            <div class="list-group list-group-flush bg-transparent">
+                {% for ticket in overdue_tickets %}
+                    <a href="{{ url_for('tickets.detail', ticket_id=ticket.id) }}" class="list-group-item list-group-item-action bg-transparent text-light border-secondary border-opacity-25 py-3">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1 text-light">{{ ticket.title }}</h6>
+                            <small class="text-danger">Due: {{ ticket.due_date.strftime('%Y-%m-%d') if ticket.due_date else 'N/A' }}</small>
+                        </div>
+                        <p class="mb-1 text-secondary text-truncate" style="max-width: 400px;">{{ ticket.description or 'No description provided.' }}</p>
+                        <span class="badge bg-danger text-uppercase">{{ ticket.priority }}</span>
+                        <span class="badge bg-warning text-dark text-uppercase">{{ ticket.status }}</span>
+                    </a>
+                {% else %}
+                    <div class="text-center text-secondary py-5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-check-circle-fill text-success mb-3" viewBox="0 0 16 16">
+                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                        <p class="mb-0">Excellent! No overdue tickets found.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

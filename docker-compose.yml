@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: dev_tasks_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: issue_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d issue_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: dev_tasks_web
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/issue_tracker
+      - SECRET_KEY=change-me-to-a-random-string-12345
+      - FLASK_DEBUG=1
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "python init_db.py && python seed.py && python run.py"
+
+volumes:
+  pgdata:

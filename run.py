@@ -1,2 +1,7 @@
-# run.py — Entry point to start the Flask application.
-# TODO: Import the app factory and run the server.
+from app import create_app
+
+app = create_app()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
